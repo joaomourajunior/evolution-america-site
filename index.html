@@ -1208,7 +1208,7 @@ p{ margin:0; }
         <div class="page-head">
           <div class="eyebrow">Administração da plataforma</div>
           <h1>Configurações</h1>
-          <div class="desc">Cadastre novas escolas na plataforma Evolution América.</div>
+          <div class="desc">Gerencie sua conta, a marca da sua escola e o acesso da sua equipe.</div>
         </div>
 
         <div class="course-hero" style="align-items:flex-start;margin-bottom:26px;">
@@ -1234,7 +1234,7 @@ p{ margin:0; }
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:640px;">
               <div class="field"><label>E-mail de contato</label><input type="email" id="brand-email" placeholder="contato@suaescola.com.br"></div>
-              <div class="field"><label>Telefone</label><input type="text" id="brand-phone" placeholder="(11) 99999-9999"></div>
+              <div class="field"><label>Telefone / WhatsApp de suporte</label><input type="text" id="brand-phone" placeholder="(11) 99999-9999"></div>
               <div class="field"><label>CPF/CNPJ</label><input type="text" id="brand-cpf" placeholder="opcional"></div>
             </div>
             <button class="btn-gold" onclick="submitBranding()">Salvar marca e contato</button>
@@ -1259,7 +1259,7 @@ p{ margin:0; }
             <h1>EVO IA</h1>
             <p>Seu assistente de estudos do HUB Tecnológico — tire dúvidas sobre qualquer aula da trilha.</p>
           </div>
-          <span class="evoia-badge">Versão de demonstração</span>
+          <span class="evoia-badge">Respostas automáticas</span>
         </div>
 
         <div class="evoia-chips" id="evoia-chips"></div>
@@ -1270,7 +1270,7 @@ p{ margin:0; }
           <input type="text" id="evoia-input" placeholder="Pergunte sobre qualquer aula da trilha de IA..." onkeydown="if(event.key==='Enter') sendEvoiaMessage()">
           <button class="btn-gold" onclick="sendEvoiaMessage()">Enviar</button>
         </div>
-        <div class="evoia-footnote">💡 O EVO IA responde com base no conteúdo já publicado no HUB Tecnológico. Uma versão conectada a um modelo de linguagem completo chega junto com o backend da plataforma.</div>
+        <div class="evoia-footnote">💡 O EVO IA responde com base no conteúdo já publicado no HUB Tecnológico e em regras de atendimento configuradas pela sua escola. Uma versão conectada a um modelo de linguagem completo pode ser ativada depois, configurando uma chave de API no backend.</div>
       </section>
 
     </div>
@@ -1484,7 +1484,7 @@ p{ margin:0; }
         <div class="page-head">
           <div class="eyebrow">Suporte</div>
           <h1>Minhas Dúvidas</h1>
-          <div class="desc">Pergunte sobre o curso ou sobre qualquer assunto da escola (mensalidade, prazos, acesso etc). A EVO IA responde na hora, e sua escola pode complementar depois.</div>
+          <div class="desc">Como funciona: 1) a EVO IA responde sua pergunta na hora; 2) se precisar, seu professor complementa depois; 3) se ainda tiver dúvida, você pode chamar a escola direto no WhatsApp.</div>
         </div>
 
         <div class="course-hero" style="align-items:flex-start;margin-bottom:24px;">
@@ -4647,19 +4647,31 @@ async function loadStudentTickets(){
   }
 }
 
+function buildWhatsAppLink(ticket){
+  let phone = (CURRENT_SCHOOL && CURRENT_SCHOOL.phone || '').replace(/\D/g, '');
+  if(!phone) return null;
+  if(phone.length <= 11) phone = '55' + phone; // assume Brasil se não tiver código do país
+  const text = encodeURIComponent(
+    `Olá! Sou ${CURRENT_STUDENT.name}, estudante da Evolution América.\n\nMinha dúvida: "${ticket.subject}"\n${ticket.message}\n\n(A EVO IA já tentou ajudar, mas ainda preciso de suporte.)`
+  );
+  return `https://wa.me/${phone}?text=${text}`;
+}
+
 function renderStudentTickets(tickets){
   const el = document.getElementById('student-tickets-list');
   if(tickets.length === 0){
     el.innerHTML = `<div class="soon-box" style="text-align:left;"><p>Você ainda não enviou nenhuma dúvida.</p></div>`;
     return;
   }
-  el.innerHTML = tickets.map(t => `
+  el.innerHTML = tickets.map(t => {
+    const waLink = !t.professorReply ? buildWhatsAppLink(t) : null;
+    return `
     <div class="course-hero" style="align-items:flex-start;margin-bottom:16px;">
       <div class="info" style="width:100%;">
         <h3 style="margin:0 0 4px;">${escapeHtml(t.subject)}</h3>
         <div class="meta" style="font-size:12px;color:var(--ink-400);margin-bottom:10px;">${new Date(t.createdAt).toLocaleString('pt-BR')}</div>
         <p style="color:var(--ink-200);font-size:14px;margin-bottom:10px;"><strong>Você perguntou:</strong> ${escapeHtml(t.message)}</p>
-        <div style="background:rgba(255,255,255,.03);border:1px solid var(--petrol-line);border-radius:10px;padding:12px 14px;margin-bottom:${t.professorReply ? '12px' : '0'};">
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--petrol-line);border-radius:10px;padding:12px 14px;margin-bottom:${t.professorReply ? '12px' : '12px'};">
           <div style="font-size:11.5px;color:var(--gold-2);font-weight:700;margin-bottom:4px;">🤖 ${escapeHtml(t.professorAckMessage)}</div>
           <div style="font-size:13.5px;color:var(--ink-200);">${escapeHtml(t.aiReply)}</div>
         </div>
@@ -4668,10 +4680,19 @@ function renderStudentTickets(tickets){
             <div style="font-size:11.5px;color:#3FAE7A;font-weight:700;margin-bottom:4px;">✅ Resposta da sua escola:</div>
             <div style="font-size:13.5px;color:var(--ink-200);">${escapeHtml(t.professorReply)}</div>
           </div>
-        ` : ''}
+        ` : `
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:12.5px;color:var(--ink-300);">Ainda com dúvida? Sua escola vai responder em breve, ou fale agora:</span>
+            ${waLink
+              ? `<a href="${waLink}" target="_blank" rel="noopener" class="btn-gold" style="text-decoration:none;display:inline-flex;">📱 Falar no WhatsApp da escola</a>`
+              : `<span style="font-size:11.5px;color:var(--ink-400);">(sua escola ainda não cadastrou um WhatsApp de contato)</span>`
+            }
+          </div>
+        `}
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 async function submitStudentTicket(){
@@ -4693,6 +4714,7 @@ async function loadStudentProfile(){
   try{
     const data = await apiFetch('/students/me');
     CURRENT_STUDENT = { ...CURRENT_STUDENT, ...data.student };
+    CURRENT_SCHOOL = { ...CURRENT_SCHOOL, ...data.school };
     STUDENT_MODULES_CACHE = data.modules;
 
     document.getElementById('student-progress-summary').innerHTML = `
