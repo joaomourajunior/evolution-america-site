@@ -1232,6 +1232,11 @@ p{ margin:0; }
                 <div style="font-size:11.5px;color:var(--ink-400);margin-top:4px;">PNG ou JPG, até ~500KB</div>
               </div>
             </div>
+            <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:14px;max-width:640px;margin-bottom:14px;">
+              <div class="field"><label>Nome da escola</label><input type="text" id="brand-name" placeholder="Nome da sua instituição"></div>
+              <div class="field"><label>Cidade</label><input type="text" id="brand-city" placeholder="Ex: Sorocaba"></div>
+              <div class="field"><label>Estado</label><input type="text" id="brand-state" placeholder="Ex: SP"></div>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:640px;">
               <div class="field"><label>E-mail de contato</label><input type="email" id="brand-email" placeholder="contato@suaescola.com.br"></div>
               <div class="field"><label>Telefone / WhatsApp de suporte</label><input type="text" id="brand-phone" placeholder="(11) 99999-9999"></div>
@@ -3027,6 +3032,7 @@ function doLogout(){
   if(OWNER_FORM_MODE) toggleOwnerMode();
   if(STUDENT_LOGIN_MODE) toggleStudentMode();
   document.getElementById('view-login').classList.add('active');
+  populateSchoolSelects(); // recarrega a lista, caso alguma escola tenha sido renomeada/criada/excluída
 }
 
 /* ======================= MODO DONO DA PLATAFORMA ======================= */
@@ -4475,6 +4481,9 @@ async function loadMyBranding(){
   try{
     const data = await apiFetch('/schools/me');
     const s = data.school;
+    document.getElementById('brand-name').value = s.name || '';
+    document.getElementById('brand-city').value = s.city || '';
+    document.getElementById('brand-state').value = s.state || '';
     document.getElementById('brand-email').value = s.email || '';
     document.getElementById('brand-phone').value = s.phone || '';
     document.getElementById('brand-cpf').value = s.cpfCnpj || '';
@@ -4509,10 +4518,14 @@ document.getElementById('brand-logo-input').addEventListener('change', (e)=>{
 });
 
 async function submitBranding(){
+  const name = document.getElementById('brand-name').value.trim();
+  const city = document.getElementById('brand-city').value.trim();
+  const state = document.getElementById('brand-state').value.trim();
   const email = document.getElementById('brand-email').value.trim();
   const phone = document.getElementById('brand-phone').value.trim();
   const cpfCnpj = document.getElementById('brand-cpf').value.trim();
-  const body = { email, phone, cpfCnpj };
+  if(!name){ showToast('⚠️ O nome da escola não pode ficar em branco.'); return; }
+  const body = { name, city, state, email, phone, cpfCnpj };
   if(PENDING_LOGO_DATA_URL) body.logoDataUrl = PENDING_LOGO_DATA_URL;
   try{
     const data = await apiFetch('/schools/branding', { method:'PUT', body: JSON.stringify(body) });
@@ -4520,6 +4533,11 @@ async function submitBranding(){
     if(data.school.logoDataUrl){
       const sbLogo = document.getElementById('sb-brand-logo');
       if(sbLogo) sbLogo.src = data.school.logoDataUrl;
+    }
+    if(data.school.name){
+      const sbSchoolName = document.getElementById('sb-school-name');
+      if(sbSchoolName) sbSchoolName.textContent = data.school.name;
+      if(CURRENT_SCHOOL) CURRENT_SCHOOL.name = data.school.name;
     }
     PENDING_LOGO_DATA_URL = null;
   }catch(err){
