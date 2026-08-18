@@ -153,7 +153,7 @@ p{ margin:0; }
 .field{ margin-bottom:16px; }
 .field label{
   display:block; font-size:12px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
-  color: var(--ink-300); margin-bottom:7px;
+  color: var(--ink-300); margin-bottom:7px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .field select, .field input{
   width:100%; padding:12px 14px; border-radius: var(--radius-sm);
@@ -837,6 +837,10 @@ p{ margin:0; }
     <h2>Editar acesso do usuário</h2>
     <p class="lead">Isto é uma ação sigilosa, disponível só dentro do Painel Evolution. A senha nunca aparece em texto puro por padrão.</p>
     <div class="field">
+      <label>Nome de exibição</label>
+      <input type="text" id="owner-edit-name">
+    </div>
+    <div class="field">
       <label>Login (usuário)</label>
       <input type="text" id="owner-edit-username">
     </div>
@@ -1239,7 +1243,7 @@ p{ margin:0; }
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:640px;">
               <div class="field"><label>E-mail de contato</label><input type="email" id="brand-email" placeholder="contato@suaescola.com.br"></div>
-              <div class="field"><label>Telefone / WhatsApp de suporte</label><input type="text" id="brand-phone" placeholder="(11) 99999-9999"></div>
+              <div class="field"><label>WhatsApp de suporte</label><input type="text" id="brand-phone" placeholder="(11) 99999-9999"></div>
               <div class="field"><label>CPF/CNPJ</label><input type="text" id="brand-cpf" placeholder="opcional"></div>
             </div>
             <button class="btn-gold" onclick="submitBranding()">Salvar marca e contato</button>
@@ -1666,7 +1670,7 @@ LESSON_CONTENT['m1-l1'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m1-l1">
       <div class="audio-top">
         <button class="play-btn" onclick="toggleAudio(this)">▶</button>
         <div class="audio-meta">
@@ -1732,7 +1736,7 @@ LESSON_CONTENT['m1-l2'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m1-l2">
       <div class="audio-top">
         <button class="play-btn" onclick="toggleAudio(this)">▶</button>
         <div class="audio-meta"><b>Narração — Como as máquinas aprendem</b><span>Aula 2 · Módulo 1 · 16 min</span></div>
@@ -1789,7 +1793,7 @@ LESSON_CONTENT['m1-l3'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m1-l3">
       <div class="audio-top">
         <button class="play-btn" onclick="toggleAudio(this)">▶</button>
         <div class="audio-meta"><b>Narração — Dados, algoritmos e modelos</b><span>Aula 3 · Módulo 1 · 13 min</span></div>
@@ -1845,7 +1849,7 @@ LESSON_CONTENT['m1-l4'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m1-l4">
       <div class="audio-top">
         <button class="play-btn" onclick="toggleAudio(this)">▶</button>
         <div class="audio-meta"><b>Narração — IA generativa</b><span>Aula 4 · Módulo 1 · 15 min</span></div>
@@ -1902,7 +1906,7 @@ LESSON_CONTENT['m2-l1'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m2-l1">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Primeiros passos</b><span>Aula 1 · Módulo 2 · 11 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>11:00</span></div>
@@ -1955,7 +1959,7 @@ LESSON_CONTENT['m2-l2'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m2-l2">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — A arte do prompt</b><span>Aula 2 · Módulo 2 · 17 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>17:00</span></div>
@@ -2008,7 +2012,7 @@ LESSON_CONTENT['m2-l3'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m2-l3">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Técnicas essenciais de prompt</b><span>Aula 3 · Módulo 2 · 18 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>18:00</span></div>
@@ -2065,7 +2069,7 @@ LESSON_CONTENT['m2-l4'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m2-l4">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Erros comuns</b><span>Aula 4 · Módulo 2 · 12 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>12:00</span></div>
@@ -2119,7 +2123,7 @@ LESSON_CONTENT['m3-l1'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m3-l1">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — IA para estudar</b><span>Aula 1 · Módulo 3 · 15 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>15:00</span></div>
@@ -2172,7 +2176,7 @@ LESSON_CONTENT['m3-l2'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m3-l2">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — IA para criar</b><span>Aula 2 · Módulo 3 · 16 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>16:00</span></div>
@@ -2225,7 +2229,7 @@ LESSON_CONTENT['m3-l3'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m3-l3">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — IA e ética</b><span>Aula 3 · Módulo 3 · 19 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>19:00</span></div>
@@ -2278,7 +2282,7 @@ LESSON_CONTENT['m3-l4'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m3-l4">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Verificando informações</b><span>Aula 4 · Módulo 3 · 14 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>14:00</span></div>
@@ -2332,7 +2336,7 @@ LESSON_CONTENT['m4-l1'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m4-l1">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Automatizando tarefas repetitivas</b><span>Aula 1 · Módulo 4 · 15 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>15:00</span></div>
@@ -2385,7 +2389,7 @@ LESSON_CONTENT['m4-l2'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m4-l2">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — E-mails, planilhas e apresentações</b><span>Aula 2 · Módulo 4 · 17 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>17:00</span></div>
@@ -2438,7 +2442,7 @@ LESSON_CONTENT['m4-l3'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m4-l3">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Atendimento ao cliente com IA</b><span>Aula 3 · Módulo 4 · 16 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>16:00</span></div>
@@ -2491,7 +2495,7 @@ LESSON_CONTENT['m4-l4'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m4-l4">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Análise de dados e relatórios</b><span>Aula 4 · Módulo 4 · 18 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>18:00</span></div>
@@ -2545,7 +2549,7 @@ LESSON_CONTENT['m5-l1'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m5-l1">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — O que são agentes de IA</b><span>Aula 1 · Módulo 5 · 18 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>18:00</span></div>
@@ -2598,7 +2602,7 @@ LESSON_CONTENT['m5-l2'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m5-l2">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Conectando IA a outras ferramentas</b><span>Aula 2 · Módulo 5 · 20 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>20:00</span></div>
@@ -2655,7 +2659,7 @@ LESSON_CONTENT['m5-l3'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m5-l3">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Construindo seu primeiro fluxo automatizado</b><span>Aula 3 · Módulo 5 · 22 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>22:00</span></div>
@@ -2709,7 +2713,7 @@ LESSON_CONTENT['m5-l4'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m5-l4">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Multi-agentes</b><span>Aula 4 · Módulo 5 · 19 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>19:00</span></div>
@@ -2763,7 +2767,7 @@ LESSON_CONTENT['m6-l1'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m6-l1">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Carreiras em IA</b><span>Aula 1 · Módulo 6 · 14 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>14:00</span></div>
@@ -2815,7 +2819,7 @@ LESSON_CONTENT['m6-l2'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m6-l2">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Montando um portfólio</b><span>Aula 2 · Módulo 6 · 17 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>17:00</span></div>
@@ -2873,7 +2877,7 @@ LESSON_CONTENT['m6-l3'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m6-l3">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Estudo de caso final</b><span>Aula 3 · Módulo 6 · 25 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>25:00</span></div>
@@ -2927,7 +2931,7 @@ LESSON_CONTENT['m6-l4'] = {
     </div>
   `,
   audio: `
-    <div class="audio-player">
+    <div class="audio-player" data-audio-key="m6-l4">
       <div class="audio-top"><button class="play-btn" onclick="toggleAudio(this)">▶</button><div class="audio-meta"><b>Narração — Avaliação final e certificado</b><span>Aula 4 · Módulo 6 · 20 min</span></div></div>
       <div class="waveform" id="waveform"></div>
       <div class="audio-scrub"><span>0:00</span><span>20:00</span></div>
@@ -3209,7 +3213,7 @@ async function reloadOwnerSchoolDetail(){
           <h4>${escapeHtml(u.name || u.username)}</h4>
           <div class="meta"><span>usuário: ${escapeHtml(u.username)}</span><span>${escapeHtml(u.role)}</span></div>
         </div>
-        <button class="btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="event.stopPropagation(); openOwnerEditUser(${s.id}, ${u.id}, '${escapeHtml(u.username).replace(/'/g,"\\'")}')">✏️ Editar login/senha</button>
+        <button class="btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="event.stopPropagation(); openOwnerEditUser(${s.id}, ${u.id}, '${escapeHtml(u.username).replace(/'/g,"\\'")}', '${escapeHtml(u.name || '').replace(/'/g,"\\'")}')">✏️ Editar login/senha</button>
       </div>
     `).join('') || `<div class="soon-box" style="text-align:left;"><p>Nenhum usuário.</p></div>`;
     document.getElementById('owner-school-classes').innerHTML = s.classes.map(c => `
@@ -3290,9 +3294,10 @@ function toggleShowPassword(inputId, btn){
   btn.textContent = showing ? 'Mostrar' : 'Ocultar';
 }
 
-function openOwnerEditUser(schoolId, userId, currentUsername){
+function openOwnerEditUser(schoolId, userId, currentUsername, currentName){
   OWNER_EDIT_SCHOOL_ID = schoolId;
   OWNER_EDIT_USER_ID = userId;
+  document.getElementById('owner-edit-name').value = currentName || '';
   document.getElementById('owner-edit-username').value = currentUsername;
   const passInput = document.getElementById('owner-edit-password');
   passInput.value = '';
@@ -3303,16 +3308,18 @@ function closeOwnerEditUser(){
   document.getElementById('owner-edit-user-modal').classList.remove('active');
 }
 async function confirmOwnerEditUser(){
+  const name = document.getElementById('owner-edit-name').value.trim();
   const username = document.getElementById('owner-edit-username').value.trim();
   const password = document.getElementById('owner-edit-password').value;
   if(password && password.length < 6){ showToast('⚠️ A nova senha deve ter pelo menos 6 caracteres.'); return; }
   const body = {};
+  if(name) body.name = name;
   if(username) body.username = username;
   if(password) body.password = password;
   if(Object.keys(body).length === 0){ showToast('Nada para alterar.'); return; }
   try{
     await apiFetch(`/owner/schools/${OWNER_EDIT_SCHOOL_ID}/users/${OWNER_EDIT_USER_ID}`, { method:'PUT', body: JSON.stringify(body) });
-    showToast('✅ Login/senha atualizados!');
+    showToast('✅ Dados do usuário atualizados!');
     closeOwnerEditUser();
     await reloadOwnerSchoolDetail();
   }catch(err){
@@ -3846,10 +3853,76 @@ function buildWaveform(){
     wf.appendChild(bar);
   }
 }
+/* ======================= PLAYER DE ÁUDIO REAL ======================= */
+const AUDIO_ELEMENTS = {}; // cache de <audio> reais, um por chave de aula
+
+function getOrCreateAudio(key){
+  if(AUDIO_ELEMENTS[key]) return AUDIO_ELEMENTS[key];
+  const audio = new Audio(`audio/${key}.mp3`);
+  audio.preload = 'none';
+  AUDIO_ELEMENTS[key] = audio;
+  return audio;
+}
+
+function fmtTime(seconds){
+  if(!isFinite(seconds) || seconds < 0) seconds = 0;
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
 function toggleAudio(btn){
-  const playing = btn.textContent.trim() === '▶';
-  btn.textContent = playing ? '❚❚' : '▶';
-  showToast(playing ? '🎧 Reproduzindo narração (áudio real chega numa próxima etapa).' : '⏸ Pausado.');
+  const player = btn.closest('.audio-player');
+  if(!player){ showToast('⚠️ Player de áudio não encontrado.'); return; }
+  const key = player.dataset.audioKey;
+  if(!key){ showToast('⚠️ Áudio desta aula ainda não foi publicado.'); return; }
+
+  // pausa qualquer outro áudio tocando, pra não sobrepor vozes
+  Object.entries(AUDIO_ELEMENTS).forEach(([k, a]) => {
+    if(k !== key && !a.paused){
+      a.pause();
+      const otherBtn = document.querySelector(`.audio-player[data-audio-key="${k}"] .play-btn`);
+      if(otherBtn) otherBtn.textContent = '▶';
+    }
+  });
+
+  const audio = getOrCreateAudio(key);
+  const scrubStart = player.querySelector('.audio-scrub span:first-child');
+  const scrubEnd = player.querySelector('.audio-scrub span:last-child');
+  const waveform = player.querySelector('.waveform');
+
+  if(audio.paused){
+    audio.play().catch(() => {
+      showToast('⚠️ Não foi possível tocar o áudio. Verifique se o arquivo foi publicado em /audio/' + key + '.mp3');
+    });
+    btn.textContent = '❚❚';
+  } else {
+    audio.pause();
+    btn.textContent = '▶';
+  }
+
+  // atualiza o relógio e a barra de progresso enquanto toca, sem duplicar listeners
+  if(!audio.dataset.wired){
+    audio.dataset.wired = '1';
+    audio.addEventListener('timeupdate', () => {
+      const p = document.querySelector(`.audio-player[data-audio-key="${key}"]`);
+      if(!p) return;
+      const s1 = p.querySelector('.audio-scrub span:first-child');
+      const wf = p.querySelector('.waveform');
+      if(s1) s1.textContent = fmtTime(audio.currentTime);
+      if(wf && audio.duration) wf.style.background = `linear-gradient(90deg, var(--gold-2) ${(audio.currentTime/audio.duration*100)}%, rgba(255,255,255,.08) 0%)`;
+    });
+    audio.addEventListener('loadedmetadata', () => {
+      const p = document.querySelector(`.audio-player[data-audio-key="${key}"]`);
+      const s2 = p && p.querySelector('.audio-scrub span:last-child');
+      if(s2) s2.textContent = fmtTime(audio.duration);
+    });
+    audio.addEventListener('ended', () => {
+      const p = document.querySelector(`.audio-player[data-audio-key="${key}"]`);
+      const b = p && p.querySelector('.play-btn');
+      if(b) b.textContent = '▶';
+    });
+  }
 }
 
 /* checklist cinestésico */
