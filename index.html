@@ -878,13 +878,57 @@ p{ margin:0; }
   </div>
 </div>
 
+<!-- ======================= MODAL: PERFIL COMPLETO DO ESTUDANTE ======================= -->
+<div id="student-profile-modal" class="modal-overlay" onclick="if(event.target===this) closeStudentProfile()">
+  <div class="modal-card" style="max-width:640px;">
+    <button class="modal-close" onclick="closeStudentProfile()">✕</button>
+    <div class="modal-icon">📊</div>
+    <h2 id="sp-name">Estudante</h2>
+    <p class="lead" id="sp-subtitle"></p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;">
+      <div class="stat"><div class="n" id="sp-percent">0%</div><div class="l">Aproveitamento</div></div>
+      <div class="stat"><div class="n" id="sp-level">—</div><div class="l">Fase atual</div></div>
+      <div class="stat"><div class="n" id="sp-lessons">0/24</div><div class="l">Aulas concluídas</div></div>
+    </div>
+
+    <h3 style="margin-bottom:10px;">Avaliações por módulo</h3>
+    <div id="sp-assessments" style="margin-bottom:20px;"></div>
+
+    <h3 style="margin-bottom:10px;">Situação financeira</h3>
+    <div class="field">
+      <select id="sp-payment-status">
+        <option value="em_dia">🟢 Em dia</option>
+        <option value="atrasado">🔴 Atrasado</option>
+        <option value="isento">⚪ Isento</option>
+      </select>
+    </div>
+    <button class="btn-gold" style="margin-bottom:20px;" onclick="saveStudentPaymentStatus()">Salvar status de pagamento</button>
+
+    <h3 style="margin-bottom:10px;">Certificado</h3>
+    <div id="sp-certificate"></div>
+  </div>
+</div>
+
 <!-- ======================= MODAL: EDITAR CAPA DO CURSO ======================= -->
 <div id="course-cover-modal" class="modal-overlay" onclick="if(event.target===this) closeCourseCoverEditor()">
   <div class="modal-card">
     <button class="modal-close" onclick="closeCourseCoverEditor()">✕</button>
     <div class="modal-icon">🖼️</div>
     <h2>Editar capa do curso</h2>
-    <p class="lead">Personalize como a trilha aparece no HUB Tecnológico.</p>
+    <p class="lead">Personalize como a trilha aparece no HUB Tecnológico. Fica salvo de verdade, só muda se alguém editar de novo.</p>
+    <div class="field">
+      <label>Imagem da capa (opcional)</label>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div id="cover-image-preview" style="width:64px;height:64px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--petrol-line);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+          <span style="font-size:10px;color:var(--ink-400);">sem imagem</span>
+        </div>
+        <div>
+          <input type="file" id="cover-image-input" accept="image/*" style="font-size:12.5px;color:var(--ink-300);">
+          <div style="font-size:11px;color:var(--ink-400);margin-top:4px;">PNG ou JPG, até ~600KB. Deixe em branco pra manter o ícone padrão.</div>
+        </div>
+      </div>
+    </div>
     <div class="field"><label>Título</label><input type="text" id="cover-edit-title"></div>
     <div class="field"><label>Descrição</label><textarea id="cover-edit-desc" rows="3"></textarea></div>
     <div class="field"><label>Etiqueta de destaque</label><input type="text" id="cover-edit-tag" placeholder="Ex: Trilha completa · IA"></div>
@@ -961,39 +1005,24 @@ p{ margin:0; }
 
 <!-- ======================= MODAL: TESTE DE NIVELAMENTO ======================= -->
 <div id="leveling-test-modal" class="modal-overlay" onclick="if(event.target===this) closeLevelingTest()">
-  <div class="modal-card">
+  <div class="modal-card" style="max-width:640px;">
     <button class="modal-close" onclick="closeLevelingTest()">✕</button>
     <div class="modal-icon">🎯</div>
     <h2>Teste de nivelamento</h2>
-    <p class="lead">Responda rapidinho e a gente sugere o melhor nível pra começar. Você pode ajustar depois se quiser.</p>
+    <p class="lead">Um teste de verdade: 5 perguntas objetivas de conhecimento + idade e objetivo. A sugestão fica bem mais precisa assim.</p>
 
     <div class="field">
       <label>Idade do estudante</label>
       <input type="number" id="lvl-age" min="5" max="99" placeholder="Ex: 12">
     </div>
 
-    <div class="field">
-      <label>Já usou alguma ferramenta de IA (ChatGPT, Gemini etc.) antes?</label>
-      <select id="lvl-experience">
-        <option value="0">Nunca usei</option>
-        <option value="1">Já usei algumas vezes</option>
-        <option value="2">Uso com frequência</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Sabe o que é um "prompt"?</label>
-      <select id="lvl-prompt">
-        <option value="0">Não sei</option>
-        <option value="1">Mais ou menos</option>
-        <option value="2">Sim, sei bem</option>
-      </select>
-    </div>
+    <div id="lvl-quiz-questions"></div>
 
     <div class="field">
       <label>Objetivo principal com o curso</label>
       <select id="lvl-goal">
         <option value="curioso">Aprender por curiosidade / uso pessoal</option>
+        <option value="reforco">Reforço escolar</option>
         <option value="profissional">Aplicar no trabalho / carreira</option>
         <option value="formador">Quero aprender pra depois ensinar outras pessoas</option>
       </select>
@@ -3500,6 +3529,21 @@ async function loadCourseFromApi(){
   }catch(err){
     console.warn('Não foi possível carregar o catálogo da API, mantendo dados de demonstração:', err.message);
   }
+  await loadSavedCourseCover();
+}
+
+// Carrega a capa personalizada (título, cor, imagem) que a escola já salvou
+// antes, pra ela aparecer certinho assim que a pessoa loga — sem precisar
+// abrir o editor de capa de novo.
+async function loadSavedCourseCover(){
+  try{
+    const data = await apiFetch('/schools/me');
+    if(data.school && data.school.courseCover){
+      applyCourseCover(data.school.courseCover);
+    }
+  }catch(err){
+    console.warn('Não foi possível carregar a capa personalizada:', err.message);
+  }
 }
 
 initApp();
@@ -3552,10 +3596,10 @@ function renderHub(){
   const pct = totalLessons ? Math.round((completedLessons/totalLessons)*100) : 0;
   grid.innerHTML = `
     <div class="course-card" onclick="goToCourse(event)">
-      <div class="course-cover">
-        <span class="cover-tag">Tecnologia</span>
+      <div class="course-cover" style="${COURSE.coverColor ? `background:linear-gradient(135deg, ${COURSE.coverColor}33, rgba(6,49,61,.95));` : ''}">
+        <span class="cover-tag" style="${COURSE.coverColor ? `background:${COURSE.coverColor};` : ''}">${COURSE.coverTag || 'Tecnologia'}</span>
         <button class="edit-cover" onclick="openCourseCoverEditor(event)">✏️ Editar capa</button>
-        <img class="cover-icon" src="logo-evolution-america.png" alt="">
+        <img class="cover-icon" src="${COURSE.coverImage || 'logo-evolution-america.png'}" alt="">
       </div>
       <div class="course-body">
         <h3 id="hub-course-title">${COURSE.title}</h3>
@@ -3579,30 +3623,73 @@ function renderHub(){
   `;
 }
 
+let PENDING_COVER_IMAGE = null;
 function openCourseCoverEditor(e){
   if(e) e.stopPropagation();
   document.getElementById('cover-edit-title').value = COURSE.title;
   document.getElementById('cover-edit-desc').value = COURSE.desc;
   document.getElementById('cover-edit-tag').value = COURSE.coverTag || 'Trilha completa · IA';
   document.getElementById('cover-edit-color').value = COURSE.coverColor || '#D4AF37';
+  PENDING_COVER_IMAGE = null;
+  document.getElementById('cover-image-input').value = '';
+  renderCoverImagePreview(COURSE.coverImage || null);
   document.getElementById('course-cover-modal').classList.add('active');
 }
 function closeCourseCoverEditor(){
   document.getElementById('course-cover-modal').classList.remove('active');
 }
-function saveCourseCover(){
+function renderCoverImagePreview(dataUrl){
+  const el = document.getElementById('cover-image-preview');
+  el.innerHTML = dataUrl
+    ? `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;">`
+    : `<span style="font-size:10px;color:var(--ink-400);">sem imagem</span>`;
+}
+document.getElementById('cover-image-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 650000){
+    showToast('⚠️ Imagem muito grande. Use um arquivo até ~600KB.');
+    e.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    PENDING_COVER_IMAGE = reader.result;
+    renderCoverImagePreview(PENDING_COVER_IMAGE);
+  };
+  reader.readAsDataURL(file);
+});
+
+async function saveCourseCover(){
   const title = document.getElementById('cover-edit-title').value.trim();
   const desc = document.getElementById('cover-edit-desc').value.trim();
   const tag = document.getElementById('cover-edit-tag').value.trim();
   const color = document.getElementById('cover-edit-color').value;
   if(!title){ showToast('⚠️ O título não pode ficar em branco.'); return; }
 
-  COURSE.title = title;
-  COURSE.desc = desc;
-  COURSE.coverTag = tag || 'Trilha completa · IA';
-  COURSE.coverColor = color;
+  const body = { title, desc, tag: tag || 'Trilha completa · IA', color };
+  if(PENDING_COVER_IMAGE) body.imageDataUrl = PENDING_COVER_IMAGE;
 
-  // Aplica na hora, nas duas telas (card do HUB e página do curso)
+  try{
+    const data = await apiFetch('/schools/course-cover', { method:'PUT', body: JSON.stringify(body) });
+    applyCourseCover(data.courseCover);
+    closeCourseCoverEditor();
+    showToast('✅ Capa da trilha salva de verdade!');
+  }catch(err){
+    showToast('⚠️ ' + (err.message || 'Não foi possível salvar a capa agora.'));
+  }
+}
+
+// Aplica a capa (título, descrição, cor, imagem) em todas as telas que a mostram,
+// e guarda em COURSE pra não precisar recarregar do servidor toda hora.
+function applyCourseCover(cover){
+  if(!cover) return;
+  COURSE.title = cover.title || COURSE.title;
+  COURSE.desc = cover.desc || COURSE.desc;
+  COURSE.coverTag = cover.tag || COURSE.coverTag;
+  COURSE.coverColor = cover.color || COURSE.coverColor;
+  COURSE.coverImage = cover.imageDataUrl || null;
+
   const hubTitle = document.getElementById('hub-course-title');
   if(hubTitle) hubTitle.textContent = COURSE.title;
   const courseTitle = document.getElementById('course-title');
@@ -3611,23 +3698,19 @@ function saveCourseCover(){
   if(courseDesc) courseDesc.textContent = COURSE.desc;
   const courseTag = document.getElementById('course-tag');
   if(courseTag) courseTag.textContent = COURSE.coverTag;
-  document.querySelectorAll('.cover-tag').forEach(el => { el.textContent = COURSE.coverTag; el.style.background = color; });
-  document.querySelectorAll('.edit-cover').forEach(el => { el.style.borderColor = color; });
+  document.querySelectorAll('.cover-tag').forEach(el => { el.textContent = COURSE.coverTag; el.style.background = COURSE.coverColor; });
+  document.querySelectorAll('.edit-cover').forEach(el => { el.style.borderColor = COURSE.coverColor; });
 
-  closeCourseCoverEditor();
-  showToast('✅ Capa do curso atualizada!');
-  renderHub();
+  // a cor agora também tinge o fundo do quadro da capa (efeito visível de verdade)
+  document.querySelectorAll('.course-cover').forEach(el => {
+    el.style.background = `linear-gradient(135deg, ${COURSE.coverColor}33, rgba(6,49,61,.95))`;
+  });
+  // se tiver imagem customizada, ela substitui o ícone padrão (é uma tag <img>, troca o src)
+  document.querySelectorAll('.cover-icon').forEach(el => {
+    el.src = COURSE.coverImage || 'logo-evolution-america.png';
+  });
 }
 
-function editCover(e){
-  e.stopPropagation();
-  const novo = prompt("Novo título da capa do curso:", COURSE.title);
-  if(novo && novo.trim()){
-    COURSE.title = novo.trim();
-    renderHub();
-    showToast('✅ Capa do curso atualizada.');
-  }
-}
 
 function goToCourse(e){
   if(e) e.stopPropagation();
@@ -4099,6 +4182,12 @@ async function loadStudents(classId){
   }
 }
 
+const PAYMENT_LABELS = {
+  em_dia: { text: '🟢 Em dia', color: 'var(--green-1)' },
+  atrasado: { text: '🔴 Atrasado', color: 'var(--danger)' },
+  isento: { text: '⚪ Isento', color: 'var(--ink-400)' },
+};
+
 function renderStudentsList(students){
   document.getElementById('turma-detail-count').textContent = `${students.length} estudante${students.length === 1 ? '' : 's'} matriculado${students.length === 1 ? '' : 's'}`;
   const el = document.getElementById('students-list');
@@ -4106,17 +4195,144 @@ function renderStudentsList(students){
     el.innerHTML = `<div class="soon-box" style="text-align:left;"><p>Nenhum estudante matriculado ainda. Clique em "+ Adicionar estudante".</p></div>`;
     return;
   }
-  el.innerHTML = students.map(s => `
-    <div class="lesson-row" style="cursor:default;">
+  el.innerHTML = students.map(s => {
+    const payment = PAYMENT_LABELS[s.paymentStatus || 'em_dia'];
+    const pct = s.overallPercent != null ? s.overallPercent : 0;
+    return `
+    <div class="lesson-row" style="cursor:pointer;" onclick="openStudentProfile(${s.id})">
       <div class="lesson-num">👤</div>
       <div class="lesson-info">
         <h4>${escapeHtml(s.name)}</h4>
-        <div class="meta"><span>usuário: ${escapeHtml(s.username)}</span><span>${escapeHtml(MODULE_LABELS[s.enrolledModule] || s.enrolledModule)}</span></div>
+        <div class="meta">
+          <span>usuário: ${escapeHtml(s.username)}</span>
+          <span>${escapeHtml(MODULE_LABELS[s.enrolledModule] || s.enrolledModule)}</span>
+          <span>${pct}% concluído</span>
+          <span style="color:${payment.color};">${payment.text}</span>
+          ${s.certificateIssuedAt ? '<span>🏅 Certificado emitido</span>' : (s.certificateEligible ? '<span style="color:var(--gold-2);">🏅 Elegível ao certificado</span>' : '')}
+        </div>
       </div>
+      <button class="btn-ghost" style="padding:6px 12px;font-size:12px;margin-right:8px;" onclick="event.stopPropagation(); openStudentProfile(${s.id})">📊 Perfil</button>
       <button class="btn-ghost" style="padding:6px 12px;font-size:12px;margin-right:8px;" onclick="event.stopPropagation(); openEditStudentModal(${s.id}, '${escapeHtml(s.name).replace(/'/g,"\\'")}', '${escapeHtml(s.username).replace(/'/g,"\\'")}', '${s.enrolledModule}')">✏️ Editar</button>
       <button class="btn-ghost" style="padding:6px 12px;font-size:12px;border-color:var(--danger);color:var(--danger);" onclick="event.stopPropagation(); removeStudent(${s.id})">Remover</button>
     </div>
+  `;
+  }).join('');
+}
+
+let STUDENT_PROFILE_ID = null;
+
+async function openStudentProfile(studentId){
+  if(!CURRENT_CLASS){ showToast('⚠️ Abra uma turma antes.'); return; }
+  STUDENT_PROFILE_ID = studentId;
+  try{
+    const data = await apiFetch(`/classes/${CURRENT_CLASS.id}/students/${studentId}`);
+    renderStudentProfile(data.student, data.className);
+    document.getElementById('student-profile-modal').classList.add('active');
+  }catch(err){
+    showToast('⚠️ ' + (err.message || 'Não foi possível carregar o perfil do estudante.'));
+  }
+}
+function closeStudentProfile(){
+  document.getElementById('student-profile-modal').classList.remove('active');
+}
+
+function renderStudentProfile(s, className){
+  document.getElementById('sp-name').textContent = s.name;
+  document.getElementById('sp-subtitle').textContent = `${className} · usuário: ${s.username}`;
+  document.getElementById('sp-percent').textContent = s.overallPercent + '%';
+  document.getElementById('sp-level').textContent = s.enrolledModuleLabel;
+  document.getElementById('sp-lessons').textContent = `${s.completedLessons}/${s.totalLessons}`;
+  document.getElementById('sp-payment-status').value = s.paymentStatus || 'em_dia';
+
+  document.getElementById('sp-assessments').innerHTML = s.assessments.map(a => `
+    <div class="lesson-row" style="cursor:default;">
+      <div class="lesson-num">${a.passed ? '✅' : (a.done ? '❌' : '⏳')}</div>
+      <div class="lesson-info">
+        <h4>${escapeHtml(a.levelLabel)}</h4>
+        <div class="meta"><span>${a.done ? (a.passed ? `Aprovado com ${a.score}%` : `Reprovado com ${a.score}%`) : 'Ainda não fez a avaliação'}</span></div>
+      </div>
+    </div>
   `).join('');
+
+  const certBox = document.getElementById('sp-certificate');
+  if(s.certificateIssuedAt){
+    certBox.innerHTML = `
+      <div class="celebration-box" style="padding:18px;text-align:left;">
+        <p style="margin:0 0 10px;">🏅 Certificado emitido em ${new Date(s.certificateIssuedAt).toLocaleDateString('pt-BR')}.</p>
+        <button class="btn-gold" onclick="downloadStudentCertificate('${escapeHtml(s.name).replace(/'/g,"\\'")}', '${s.certificateIssuedAt}')">📄 Baixar certificado (PDF)</button>
+      </div>
+    `;
+  } else if(s.certificateEligible){
+    certBox.innerHTML = `
+      <div class="celebration-box" style="padding:18px;text-align:left;">
+        <p style="margin:0 0 10px;">🎉 Este estudante já concluiu toda a trilha e está elegível ao certificado!</p>
+        <button class="btn-primary" onclick="issueCertificate()">Emitir certificado</button>
+      </div>
+    `;
+  } else {
+    certBox.innerHTML = `<div class="soon-box" style="text-align:left;"><p>Ainda não elegível — falta concluir todos os módulos e passar em todas as avaliações.</p></div>`;
+  }
+}
+
+async function saveStudentPaymentStatus(){
+  const paymentStatus = document.getElementById('sp-payment-status').value;
+  try{
+    await apiFetch(`/classes/${CURRENT_CLASS.id}/students/${STUDENT_PROFILE_ID}`, { method:'PUT', body: JSON.stringify({ paymentStatus }) });
+    showToast('✅ Status de pagamento salvo!');
+    await loadStudents(CURRENT_CLASS.id);
+  }catch(err){
+    showToast('⚠️ ' + (err.message || 'Não foi possível salvar.'));
+  }
+}
+
+async function issueCertificate(){
+  try{
+    const data = await apiFetch(`/classes/${CURRENT_CLASS.id}/students/${STUDENT_PROFILE_ID}/issue-certificate`, { method:'POST' });
+    showToast('🏅 Certificado emitido!');
+    renderStudentProfile(data.student, document.getElementById('sp-subtitle').textContent.split(' · ')[0]);
+    await loadStudents(CURRENT_CLASS.id);
+  }catch(err){
+    showToast('⚠️ ' + (err.message || 'Não foi possível emitir o certificado.'));
+  }
+}
+
+function downloadStudentCertificate(studentName, issuedAt){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape' });
+  const w = doc.internal.pageSize.getWidth();
+  const h = doc.internal.pageSize.getHeight();
+
+  doc.setFillColor(6, 49, 61);
+  doc.rect(0, 0, w, h, 'F');
+  doc.setDrawColor(212, 175, 55);
+  doc.setLineWidth(1.5);
+  doc.rect(10, 10, w - 20, h - 20);
+
+  doc.setTextColor(212, 175, 55);
+  doc.setFontSize(28);
+  doc.text('Evolution América', w / 2, 40, { align: 'center' });
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.text('Certificado de Conclusão', w / 2, 55, { align: 'center' });
+
+  doc.setFontSize(13);
+  doc.text('Certificamos que', w / 2, 75, { align: 'center' });
+
+  doc.setTextColor(212, 175, 55);
+  doc.setFontSize(24);
+  doc.text(studentName, w / 2, 90, { align: 'center' });
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(13);
+  doc.text('concluiu com êxito a trilha completa de Inteligência Artificial da Evolution América,', w / 2, 105, { align: 'center' });
+  doc.text('do nível IA Explorer ao IA Master & Trainer.', w / 2, 113, { align: 'center' });
+
+  doc.setFontSize(11);
+  doc.setTextColor(180, 200, 200);
+  doc.text(`Emitido em ${new Date(issuedAt).toLocaleDateString('pt-BR')}`, w / 2, 130, { align: 'center' });
+
+  doc.save(`certificado-${studentName.replace(/\s+/g,'-').toLowerCase()}.pdf`);
 }
 
 const MODULE_LABELS = {
@@ -4128,22 +4344,81 @@ let STUDENT_FORM_MODE = 'add'; // 'add' ou 'edit'
 let STUDENT_FORM_EDIT_ID = null;
 
 /* ======================= TESTE DE NIVELAMENTO ======================= */
+/* ======================= TESTE DE NIVELAMENTO (versão robusta, com quiz objetivo) ======================= */
+// Banco de perguntas de diagnóstico — cobre do conceito mais básico ao mais
+// avançado, pra diferenciar de verdade o nível de conhecimento de quem está
+// respondendo (não é só "auto-avaliação", tem certo e errado de fato).
+const LEVELING_QUIZ = [
+  {
+    q: 'O que é, na prática, Inteligência Artificial?',
+    options: [
+      'Um robô com consciência própria, como nos filmes',
+      'Um sistema que reconhece padrões em dados e usa isso pra prever ou decidir algo',
+      'Um programa que só funciona com internet muito rápida',
+    ],
+    correct: 1, weight: 1,
+  },
+  {
+    q: 'O que é um "prompt"?',
+    options: [
+      'Um erro do sistema',
+      'A instrução ou pergunta que você dá pra uma IA',
+      'O nome do modelo de IA',
+    ],
+    correct: 1, weight: 1,
+  },
+  {
+    q: 'Por que é importante checar o que uma IA generativa responde?',
+    options: [
+      'Não é importante, a IA nunca erra',
+      'Porque a IA pode "alucinar" e responder algo errado com muita confiança',
+      'Porque a internet é lenta',
+    ],
+    correct: 1, weight: 2,
+  },
+  {
+    q: 'O que é um agente de IA?',
+    options: [
+      'Um vendedor de software',
+      'A mesma coisa que um chatbot simples',
+      'Um sistema que toma decisões e executa tarefas em várias etapas, de forma mais autônoma',
+    ],
+    correct: 2, weight: 3,
+  },
+  {
+    q: 'O que significa integrar uma IA a outras ferramentas (via API)?',
+    options: [
+      'Instalar a IA em um pendrive',
+      'Conectar a IA a sistemas e automações pra ela agir além de só responder texto',
+      'Desconectar a IA da internet',
+    ],
+    correct: 1, weight: 3,
+  },
+];
+
 function openLevelingTest(){
   document.getElementById('lvl-age').value = '';
-  document.getElementById('lvl-experience').value = '0';
-  document.getElementById('lvl-prompt').value = '0';
   document.getElementById('lvl-goal').value = 'curioso';
   document.getElementById('leveling-result').innerHTML = '';
+  document.getElementById('lvl-quiz-questions').innerHTML = LEVELING_QUIZ.map((q, i) => `
+    <div class="field" style="background:rgba(255,255,255,.02);border:1px solid var(--petrol-line);border-radius:10px;padding:14px 16px;">
+      <label style="margin-bottom:10px;">${i+1}. ${escapeHtml(q.q)}</label>
+      ${q.options.map((opt, oi) => `
+        <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-200);text-transform:none;letter-spacing:normal;font-weight:400;margin-bottom:6px;cursor:pointer;">
+          <input type="radio" name="lvl-quiz-${i}" value="${oi}" style="width:auto;"> ${escapeHtml(opt)}
+        </label>
+      `).join('')}
+    </div>
+  `).join('');
   document.getElementById('leveling-test-modal').classList.add('active');
 }
 function closeLevelingTest(){
   document.getElementById('leveling-test-modal').classList.remove('active');
 }
 
-// Sugere um nível cruzando idade + respostas de conhecimento, como um teste de
-// nivelamento real: a idade define a faixa possível, e o conhecimento/objetivo
-// ajusta dentro dela (nunca pulando faixas etárias inteiras).
-function suggestLevel(age, experience, promptKnowledge, goal){
+// Sugere um nível cruzando idade + pontuação real do quiz + objetivo — mais
+// assertivo que uma auto-avaliação, porque mede conhecimento demonstrado.
+function suggestLevel(age, quizScore, maxQuizScore, goal){
   let baseModule;
   if(age <= 10) baseModule = 'm1';
   else if(age <= 14) baseModule = 'm2';
@@ -4152,17 +4427,22 @@ function suggestLevel(age, experience, promptKnowledge, goal){
 
   const order = ['m1','m2','m3','m4','m5','m6'];
   let idx = order.indexOf(baseModule);
-  const knowledgeScore = experience + promptKnowledge; // 0 a 4
+  const scorePercent = maxQuizScore ? (quizScore / maxQuizScore) : 0; // 0 a 1
 
   if(age >= 17){
-    // Adultos: objetivo e conhecimento pesam mais na sugestão
-    if(goal === 'formador' && knowledgeScore >= 2) idx = order.indexOf('m6');
-    else if(goal === 'profissional' && knowledgeScore >= 3) idx = order.indexOf('m5');
-    else if(knowledgeScore <= 1) idx = order.indexOf('m4');
-  } else if(knowledgeScore >= 3 && idx < order.length - 1){
-    // Estudante mais jovem com conhecimento avançado: sobe só UM nível acima
-    // da própria faixa etária (nunca mais que isso de uma vez).
+    // Adultos: objetivo declarado + desempenho real no quiz definem o nível
+    if(goal === 'formador' && scorePercent >= 0.6) idx = order.indexOf('m6');
+    else if(goal === 'profissional' && scorePercent >= 0.75) idx = order.indexOf('m5');
+    else if(scorePercent >= 0.9) idx = order.indexOf('m5'); // domínio muito alto, mesmo sem declarar objetivo profissional
+    else if(scorePercent < 0.3) idx = order.indexOf('m4');
+  } else if(scorePercent >= 0.8 && idx < order.length - 1){
+    // Estudante mais jovem com quiz muito bem respondido: sobe só UM nível
+    // acima da própria faixa etária (nunca pula mais de um de uma vez).
     idx = idx + 1;
+  } else if(scorePercent <= 0.2 && idx > 0 && age > 10){
+    // Desempenho muito baixo no quiz: sugere começar um nível abaixo da
+    // faixa etária padrão, pra reforçar a base antes de avançar.
+    idx = Math.max(idx - 1, 0);
   }
 
   return order[Math.max(0, Math.min(idx, order.length - 1))];
@@ -4174,17 +4454,31 @@ function calculateLevelingResult(){
     document.getElementById('leveling-result').innerHTML = `<p style="color:var(--danger);font-size:13px;">⚠️ Informe uma idade válida.</p>`;
     return;
   }
-  const experience = parseInt(document.getElementById('lvl-experience').value, 10);
-  const promptKnowledge = parseInt(document.getElementById('lvl-prompt').value, 10);
-  const goal = document.getElementById('lvl-goal').value;
 
-  const suggested = suggestLevel(age, experience, promptKnowledge, goal);
+  let quizScore = 0;
+  const maxQuizScore = LEVELING_QUIZ.reduce((a, q) => a + q.weight, 0);
+  let answeredAll = true;
+  let correctCount = 0;
+  LEVELING_QUIZ.forEach((q, i) => {
+    const checked = document.querySelector(`input[name="lvl-quiz-${i}"]:checked`);
+    if(!checked){ answeredAll = false; return; }
+    if(Number(checked.value) === q.correct){ quizScore += q.weight; correctCount++; }
+  });
+  if(!answeredAll){
+    document.getElementById('leveling-result').innerHTML = `<p style="color:var(--danger);font-size:13px;">⚠️ Responda todas as 5 perguntas antes de ver a sugestão.</p>`;
+    return;
+  }
+
+  const goal = document.getElementById('lvl-goal').value;
+  const suggested = suggestLevel(age, quizScore, maxQuizScore, goal);
   const label = MODULE_LABELS[suggested] || suggested;
+  const scorePercent = Math.round((quizScore / maxQuizScore) * 100);
 
   document.getElementById('leveling-result').innerHTML = `
     <div class="celebration-box" style="padding:22px;">
       <div style="font-size:13px;color:var(--ink-300);margin-bottom:6px;">Nível sugerido:</div>
-      <h3 style="margin:0 0 14px;color:var(--gold-1);">${escapeHtml(label)}</h3>
+      <h3 style="margin:0 0 10px;color:var(--gold-1);">${escapeHtml(label)}</h3>
+      <p style="font-size:12.5px;color:var(--ink-300);margin-bottom:14px;">Baseado na idade (${age} anos) e no conhecimento demonstrado (${correctCount} de ${LEVELING_QUIZ.length} perguntas certas, ${scorePercent}% de aproveitamento no quiz).</p>
       <button class="btn-primary" onclick="applyLevelingSuggestion('${suggested}')">Usar esta sugestão</button>
     </div>
   `;
